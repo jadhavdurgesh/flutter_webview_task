@@ -11,12 +11,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  
   @override
   Widget build(BuildContext context) {
-    
     Future.delayed(Duration(seconds: 2), () {
-        Get.off(()=> HomeScreen());
+      Get.off(() => HomeScreen());
     });
 
     return Scaffold(
