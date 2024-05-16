@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_task/screens/webview.dart';
+import 'package:get/route_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Webview Task"),
+      ),
+      body: Center(
+        child: ElevatedButton(onPressed: (){
+          Get.to(()=> const WebViewScreen());
+        }, child: Text("WebView")),
       ),
     );
   }
