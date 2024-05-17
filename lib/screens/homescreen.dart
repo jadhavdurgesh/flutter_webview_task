@@ -17,9 +17,25 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Webview Task"),
       ),
       body: Center(
-        child: ElevatedButton(onPressed: (){
-          Get.to(()=> const WebViewScreen());
-        }, child: Text("WebView")),
+        child: ElevatedButton(
+            onPressed: () async {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 2, 79, 6),
+                      strokeWidth: 2,
+                    ),
+                  );
+                },
+              );
+              await Future.delayed(Duration(seconds: 2));
+              Navigator.pop(context);
+              Get.to(() => const WebViewScreen());
+            },
+            child: Text("WebView")),
       ),
     );
   }
