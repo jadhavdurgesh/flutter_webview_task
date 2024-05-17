@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_task/screens/homescreen.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class WebViewScreen extends StatefulWidget {
   const WebViewScreen({super.key});
@@ -11,18 +12,37 @@ class WebViewScreen extends StatefulWidget {
 }
 
 class _WebViewScreenState extends State<WebViewScreen> {
-
-  final webViewController = WebViewController()
-  ..setJavaScriptMode(JavaScriptMode.unrestricted)
-  ..loadRequest(Uri.parse("https://nutrahara.com/"));
+  final WebViewController webViewController = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..loadRequest(Uri.parse("https://nutrahara.com/"));
 
   bool _isError = false;
+  bool _isConnected = true;
 
-  void _reloadWebView() {
+  @override
+  void initState() {
+    super.initState();
+    _checkInternetConnection();
+  }
+
+  Future<void> _checkInternetConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
     setState(() {
-      _isError = false;
+      _isConnected = connectivityResult != ConnectivityResult.none;
+      if (!_isConnected) {
+        _isError = true;
+      }
     });
-    webViewController.loadRequest(Uri.parse("https://nutrahara.com/"));
+  }
+
+  void _reloadWebView() async {
+    await _checkInternetConnection();
+    if (_isConnected) {
+      setState(() {
+        _isError = false;
+      });
+      webViewController.loadRequest(Uri.parse("https://nutrahara.com/"));
+    }
   }
 
   void _handleWebResourceError(WebResourceError error) {
@@ -36,19 +56,19 @@ class _WebViewScreenState extends State<WebViewScreen> {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) async {
-          Get.to(() => HomeScreen());
+        Get.to(() => HomeScreen());
       },
       child: Scaffold(
         appBar: AppBar(
-        title: Text("WebView"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _reloadWebView,
-          ),
-        ],
-      ),
-       body: SafeArea(
+          title: Text("WebView"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: _reloadWebView,
+            ),
+          ],
+        ),
+        body: SafeArea(
           bottom: false,
           top: false,
           child: _isError
@@ -56,7 +76,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Failed to load the webpage."),
+                      Text(_isConnected
+                          ? "Failed to load the webpage."
+                          : "No internet connection."),
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: _reloadWebView,
@@ -69,10 +91,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
                   controller: webViewController,
                 ),
         ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _reloadWebView,
-        child: Icon(Icons.refresh),
-      ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _reloadWebView,
+          child: Icon(Icons.refresh),
+        ),
       ),
     );
   }
